@@ -1,14 +1,14 @@
 //
-//  NearApp.swift
-//  Near
+//  Near_MeApp.swift
+//  Near Me
 //
-//  Created by Adnann Muratovic on 13.05.25.
+//  Created by Adnann Muratovic on 08.05.25.
 //
 
 import SwiftUI
 
 @main
-struct NearApp: App {
+struct Near_MeApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
