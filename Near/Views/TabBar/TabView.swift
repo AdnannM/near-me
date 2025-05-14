@@ -8,12 +8,12 @@
 import SwiftUI
 
 enum AppTab: String, CaseIterable, FloatingTabProtocol {
-    
+
     case you = "You"
     case nearMe = "Near Me"
     case saved = "Saved"
     case settings = "Settings"
-    
+
     var symbolImage: String {
         switch self {
         case .you:
@@ -29,9 +29,9 @@ enum AppTab: String, CaseIterable, FloatingTabProtocol {
 }
 
 struct TabHomeView: View {
-    
+
     @State private var appTab: AppTab = .you
-    
+
     var body: some View {
         FloatingTabBar(selection: $appTab) { tab, tabBarHeight in
             switch tab {
