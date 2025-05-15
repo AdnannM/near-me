@@ -38,7 +38,7 @@ struct TabHomeView: View {
             case .you:
                 YouView()
             case .nearMe:
-                Text("Near Me")
+                NearMe()
             case .saved:
                 Text("Saved")
             case .settings:
