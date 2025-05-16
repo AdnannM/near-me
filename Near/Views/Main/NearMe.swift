@@ -121,7 +121,7 @@ struct NearMe: View {
         }
     }
     
-    func getCardData(for tab: Tab) -> [MainContentView.CardInfo] {
+    func getCardData(for tab: Tab) -> [CardInfo] {
         switch tab {
         case .food:
             return [
@@ -156,13 +156,6 @@ struct MainContentView: View {
     private let defaultCardHeight: CGFloat = 250
     private let defaultCardCornerRadius: CGFloat = 20
     let cardData: [CardInfo]
-
-    // Example data for the cards
-    struct CardInfo: Identifiable {
-        let id = UUID()
-        let title: String
-        let description: String?
-    }
 
     var body: some View {
         VStack(spacing: 12) {
