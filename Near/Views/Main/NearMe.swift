@@ -35,7 +35,6 @@ struct NearMe: View {
         GeometryReader { proxy in
             
             let minY = proxy.frame(in: .scrollView(axis: .vertical)).minY
-//            let scrollViewHeight =
             let progress = isSearching ? 1 : max(min(-minY / 70, 1), 0)
             
             VStack(spacing: 10) {
@@ -140,22 +139,4 @@ struct NearMe: View {
 }
 
 
-//struct CustomScrollTargetBehaviour: ScrollTargetBehavior {
-//    func updateTarget(_ target: inout ScrollTarget, context: TargetContext) {
-//        if target.rect.minY < 70 {
-//            if target.rect.maxY < 35 {
-//                target.rect.origin = .zero
-//            } else {
-//                target.rect.origin = .init(x: 0, y: 70)
-//            }
-//        }
-//    }
-//
-//}
 
-enum Tab: String, CaseIterable {
-    case food = "Food"
-    case store = "Store"
-    case gas = "Gas"
-    case charging = "Charging"
-}
