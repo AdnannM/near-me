@@ -117,26 +117,113 @@ struct NearMe: View {
     @ViewBuilder
     var mainView: some View {
         VStack(spacing: 12) {
-            Rectangle()
-                .fill(.gray.opacity(0.1))
-                .frame(width: .infinity, height: 250)
-                .cornerRadius(20)
-            Rectangle()
-                .fill(.gray.opacity(0.1))
-                .frame(width: .infinity, height: 250)
-                .cornerRadius(20)
-            Rectangle()
-                .fill(.gray.opacity(0.1))
-                .frame(width: .infinity, height: 250)
-                .cornerRadius(20)
+            MainContentView(cardData: getCardData(for: activeTab))
+        }
+    }
+    
+    func getCardData(for tab: Tab) -> [MainContentView.CardInfo] {
+        switch tab {
+        case .food:
+            return [
+                .init(title: "Pizza Palace", description: "Delicious cheesy pizzas made fresh."),
+                .init(title: "Sushi Central", description: "Fresh sushi and sashimi every day."),
+                .init(title: "Burger Barn", description: "Juicy burgers with crispy fries.")
+            ]
+        case .store:
+            return [
+                .init(title: "Local Mart", description: "Groceries and daily essentials."),
+                .init(title: "Tech Stop", description: "Gadgets and accessories."),
+                .init(title: "Book Nook", description: "Find your next great read.")
+            ]
+        case .gas:
+            return [
+                .init(title: "Shell Station", description: "Reliable fuel and quick snacks."),
+                .init(title: "GreenFuel", description: "Eco-friendly fuel solutions."),
+                .init(title: "QuickPump", description: "Fast service, open 24/7.")
+            ]
+        case .charging:
+            return [
+                .init(title: "SuperCharge Point", description: "Charge your EV in minutes."),
+                .init(title: "VoltZone", description: "Multiple chargers available."),
+                .init(title: "EcoCharge", description: "Solar-powered EV charging station.")
+            ]
         }
     }
 }
 
+struct MainContentView: View {
+
+    private let defaultCardHeight: CGFloat = 250
+    private let defaultCardCornerRadius: CGFloat = 20
+    let cardData: [CardInfo]
+
+    // Example data for the cards
+    struct CardInfo: Identifiable {
+        let id = UUID()
+        let title: String
+        let description: String?
+    }
+
+    var body: some View {
+        VStack(spacing: 12) {
+            ForEach(cardData) { info in
+                CardView(
+                    title: info.title,
+                    description: info.description,
+                    height: defaultCardHeight,
+                    cornerRadius: defaultCardCornerRadius
+                )
+            }
+        }
+    }
+}
+
+struct CardView: View {
+    let title: String
+    let description: String?
+    let height: CGFloat
+    let cornerRadius: CGFloat
+    let backgroundColor: Color
+
+    init(title: String,
+         description: String? = nil,
+         height: CGFloat = 250,
+         cornerRadius: CGFloat = 20,
+         backgroundColor: Color = .gray.opacity(0.1)) {
+        self.title = title
+        self.description = description
+        self.height = height
+        self.cornerRadius = cornerRadius
+        self.backgroundColor = backgroundColor
+    }
+
+    var body: some View {
+        ZStack(alignment: .leading) {
+            RoundedRectangle(cornerRadius: cornerRadius)
+                .fill(backgroundColor)
+
+            // Content
+            VStack(alignment: .leading, spacing: 8) {
+                Text(title)
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary) // Adapts to light/dark mode
+
+                if let description = description, !description.isEmpty {
+                    Text(description)
+                        .font(.body)
+                        .foregroundColor(.secondary)
+                        .lineLimit(3) // Limit description lines
+                }
+                Spacer()
+            }
+            .padding()
+        }
+        .frame(height: height)
+    }
+}
 
 #Preview {
     NearMe()
 }
-
-
 
