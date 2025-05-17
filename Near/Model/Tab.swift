@@ -8,9 +8,10 @@
 import Foundation
 
 enum Tab: String, CaseIterable {
-    case food = "Food"
-    case store = "Store"
-    case gas = "Gas"
-    case charging = "Charging"
+    case food = "Restaurants"
+    case store = "Shops"
+    case gas = "Gas Stations"
+    case charging = "EV Charging"
+    case museum = "Museums"
 }
 

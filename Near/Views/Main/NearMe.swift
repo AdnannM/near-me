@@ -7,36 +7,87 @@
 
 import SwiftUI
 
+// 3. The flow of data and state:
+// - NearMe view holds the cardDataState array
+// - MainContentView passes each card's data to CardView
+// - CardView displays the isSaved state (doesn't manage it)
+// - When bookmark button is clicked:
+//   - CardView calls onSave()
+//   - MainContentView passes the card ID to NearMe
+//   - NearMe updates the card's isSaved state and shows banner if needed
+//   - SwiftUI automatically redraws CardView with the new state
+
+// This structure ensures that the bookmark state persists and the button stays blue
+// until explicitly toggled off by the user.
+
+struct SavedBanner: View {
+    var body: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "checkmark.circle.fill")
+                .foregroundColor(.green)
+            Text("Saved")
+                .fontWeight(.semibold)
+                .foregroundColor(.primary)
+        }
+        .padding()
+        .background(.ultraThinMaterial)
+        .clipShape(Capsule())
+        .padding(.top, 10)
+        .padding(.horizontal)
+    }
+}
+
+
 struct NearMe: View {
-    
     @State private var searchText: String = ""
     @State private var activeTab: Tab = .food
     @Environment(\.colorScheme) var colorScheme
     @Namespace private var animation
     @FocusState private var isSearching: Bool
-    
+    @State private var showSavedBanner: Bool = false
+    @State private var cardDataState: [CardInfo] = []  // State to hold and manage card data
+
     var body: some View {
-        ScrollView(.vertical) {
-            LazyVStack(spacing: 15) {
-                mainView
+        ZStack(alignment: .top) { // Set alignment to .top to position items at the top
+            ScrollView(.vertical) {
+                LazyVStack(spacing: 15) {
+                    mainView
+                }
+                .safeAreaPadding(15)
+                .safeAreaInset(edge: .top, spacing: 0) {
+                    navigationView
+                }
+                .animation(
+                    .snappy(duration: 0.3, extraBounce: 0), value: isSearching)
             }
-            .safeAreaPadding(15)
-            .safeAreaInset(edge: .top, spacing: 0) {
-                navigationView
+            .background(.gray.opacity(0.15))
+            .onAppear {
+                // Initialize card data state when view appears
+                if cardDataState.isEmpty {
+                    cardDataState = getCardData(for: activeTab)
+                }
             }
-            .animation(.snappy(duration: 0.3, extraBounce: 0), value: isSearching)
+            .onChange(of: activeTab) { oldValue, newValue in
+                // Update card data when tab changes
+                cardDataState = getCardData(for: newValue)
+            }
+            .zIndex(0) // Set base layer z-index
+            
+            if showSavedBanner {
+                SavedBanner()
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                    .zIndex(10) 
+            }
         }
-        .background(.gray.opacity(0.15))
     }
-    
+
     /// Navigation
     @ViewBuilder
     var navigationView: some View {
         GeometryReader { proxy in
-            
             let minY = proxy.frame(in: .scrollView(axis: .vertical)).minY
             let progress = isSearching ? 1 : max(min(-minY / 70, 1), 0)
-            
+
             VStack(spacing: 10) {
                 
                 Text("Near Me")
@@ -46,10 +97,10 @@ struct NearMe: View {
                 HStack {
                     Image(systemName: "magnifyingglass")
                         .font(.title3)
-                    
+
                     TextField("Search Near Me", text: $searchText)
                         .focused($isSearching)
-                    
+
                     if isSearching {
                         Button {
                             isSearching = false
@@ -57,7 +108,10 @@ struct NearMe: View {
                             Image(systemName: "xmark")
                                 .font(.title3)
                         }
-                        .transition(.asymmetric(insertion: .push(from: .bottom), removal: .push(from: .top)))
+                        .transition(
+                            .asymmetric(
+                                insertion: .push(from: .bottom),
+                                removal: .push(from: .top)))
                     }
                 }
                 .foregroundStyle(Color.primary)
@@ -68,7 +122,9 @@ struct NearMe: View {
                 .background {
                     RoundedRectangle(cornerRadius: 25 - (progress * 25))
                         .fill(.background)
-                        .shadow(color: .gray.opacity(0.25), radius: 5, x: 0, y: 5)
+                        .shadow(
+                            color: .gray.opacity(0.25), radius: 5, x: 0, y: 5
+                        )
                         .padding(.top, -progress * 190)
                         .padding(.bottom, -progress * 65)
                         .padding(.horizontal, -progress * 15)
@@ -85,13 +141,20 @@ struct NearMe: View {
                                 Text(tab.rawValue)
                                     .font(.callout)
                                     .padding(.vertical, 8)
-                                    .foregroundStyle(activeTab == tab ? (colorScheme == .dark ? .black : .white) : Color.primary)
+                                    .foregroundStyle(
+                                        activeTab == tab
+                                            ? (colorScheme == .dark
+                                                ? .black : .white)
+                                            : Color.primary
+                                    )
                                     .padding(.horizontal, 15)
                                     .background {
                                         if activeTab == tab {
                                             Capsule()
                                                 .fill(Color.primary)
-                                                .matchedGeometryEffect(id: "ACTIVETAB", in: animation)
+                                                .matchedGeometryEffect(
+                                                    id: "ACTIVETAB",
+                                                    in: animation)
                                         } else {
                                             Capsule()
                                                 .fill(.background)
@@ -102,6 +165,7 @@ struct NearMe: View {
                         }
                     }
                 }
+                .scrollIndicators(.hidden)
                 .frame(height: 50)
             }
             .padding(.top, 25)
@@ -112,64 +176,64 @@ struct NearMe: View {
         .padding(.horizontal, 15)
         .padding(.bottom, isSearching ? -65 : 0)
     }
-    
+
     /// Main View
     @ViewBuilder
     var mainView: some View {
         VStack(spacing: 12) {
-            MainContentView(cardData: getCardData(for: activeTab))
-        }
-    }
-    
-    func getCardData(for tab: Tab) -> [CardInfo] {
-        switch tab {
-        case .food:
-            return [
-                .init(title: "Pizza Palace", description: "Delicious cheesy pizzas made fresh."),
-                .init(title: "Sushi Central", description: "Fresh sushi and sashimi every day."),
-                .init(title: "Burger Barn", description: "Juicy burgers with crispy fries.")
-            ]
-        case .store:
-            return [
-                .init(title: "Local Mart", description: "Groceries and daily essentials."),
-                .init(title: "Tech Stop", description: "Gadgets and accessories."),
-                .init(title: "Book Nook", description: "Find your next great read.")
-            ]
-        case .gas:
-            return [
-                .init(title: "Shell Station", description: "Reliable fuel and quick snacks."),
-                .init(title: "GreenFuel", description: "Eco-friendly fuel solutions."),
-                .init(title: "QuickPump", description: "Fast service, open 24/7.")
-            ]
-        case .charging:
-            return [
-                .init(title: "SuperCharge Point", description: "Charge your EV in minutes."),
-                .init(title: "VoltZone", description: "Multiple chargers available."),
-                .init(title: "EcoCharge", description: "Solar-powered EV charging station.")
-            ]
+            MainContentView(
+                cardData: cardDataState,
+                onSave: { cardId in
+                    // Find and update the card with the given ID
+                    if let index = cardDataState.firstIndex(where: { $0.id == cardId }) {
+                        // Toggle the saved state
+                        cardDataState[index].isSaved.toggle()
+                        
+                        // Only show banner if we're saving (not unsaving)
+                        if cardDataState[index].isSaved {
+                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                showSavedBanner = true
+                            }
+                            
+                            // Auto hide after 2 seconds
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                                withAnimation {
+                                    showSavedBanner = false
+                                }
+                            }
+                        }
+                    }
+                }
+            )
         }
     }
 }
 
 struct MainContentView: View {
-
     private let defaultCardHeight: CGFloat = 250
     private let defaultCardCornerRadius: CGFloat = 20
+    
     let cardData: [CardInfo]
-
+    let onSave: (UUID) -> Void   // Changed to accept card ID
+    
     var body: some View {
         VStack(spacing: 12) {
             ForEach(cardData) { info in
                 CardView(
                     title: info.title,
                     description: info.description,
+                    address: info.address,  // Use helper function to format address
                     height: defaultCardHeight,
-                    cornerRadius: defaultCardCornerRadius
+                    cornerRadius: defaultCardCornerRadius,
+                    isSaved: info.isSaved,  // Pass the saved state from the data model
+                    onSave: { onSave(info.id) },  // Pass the card's ID when saving
+                    backgroundColor: .gray.opacity(0.1)
                 )
             }
         }
     }
 }
+
 
 struct CardView: View {
     let title: String
@@ -177,17 +241,28 @@ struct CardView: View {
     let height: CGFloat
     let cornerRadius: CGFloat
     let backgroundColor: Color
-
-    init(title: String,
-         description: String? = nil,
-         height: CGFloat = 250,
-         cornerRadius: CGFloat = 20,
-         backgroundColor: Color = .gray.opacity(0.1)) {
+    let address: String
+    let isSaved: Bool  // Now accepts isSaved as a parameter instead of using internal state
+    let onSave: () -> Void
+    
+    init(
+        title: String,
+        description: String? = nil,
+        address: String,
+        height: CGFloat = 250,
+        cornerRadius: CGFloat = 20,
+        isSaved: Bool = false,  // Default to false
+        onSave: @escaping () -> Void,
+        backgroundColor: Color = .gray.opacity(0.1)
+    ) {
         self.title = title
         self.description = description
         self.height = height
         self.cornerRadius = cornerRadius
         self.backgroundColor = backgroundColor
+        self.address = address
+        self.isSaved = isSaved
+        self.onSave = onSave
     }
 
     var body: some View {
@@ -200,15 +275,51 @@ struct CardView: View {
                 Text(title)
                     .font(.title2)
                     .fontWeight(.bold)
-                    .foregroundColor(.primary) // Adapts to light/dark mode
+                    .foregroundColor(.primary)  // Adapts to light/dark mode
 
                 if let description = description, !description.isEmpty {
                     Text(description)
                         .font(.body)
                         .foregroundColor(.secondary)
-                        .lineLimit(3) // Limit description lines
+                        .lineLimit(3)  // Limit description lines
                 }
                 Spacer()
+                
+                HStack(spacing: 6) {
+                    // Left capsule tag (icon + address)
+                    HStack(spacing: 4) {
+                        Image(systemName: "map")
+                            .font(.caption)
+
+                        Text(address)
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                    }
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 8)
+                    .background(
+                        Capsule()
+                            .fill(Color.blue.opacity(0.12))
+                    )
+                    .overlay(
+                        Capsule()
+                            .stroke(Color.blue.opacity(0.25), lineWidth: 0.5)
+                    )
+                    .foregroundColor(.blue)
+
+                    Spacer()
+                    
+                    // Right icon button
+                    Button {
+                        // Just call onSave, the parent will handle toggling the state
+                        onSave()
+                    } label: {
+                        Image(systemName:"bookmark.circle")
+                            .font(.title)
+                            .padding(8)
+                    }
+                    .foregroundColor(isSaved ? .blue.opacity(0.25) : .white)
+                }
             }
             .padding()
         }
@@ -219,4 +330,3 @@ struct CardView: View {
 #Preview {
     NearMe()
 }
-

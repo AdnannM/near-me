@@ -76,7 +76,7 @@ struct YouView: View {
         )
         
         let request = MKLocalSearch.Request()
-        request.naturalLanguageQuery = "shops"
+        request.naturalLanguageQuery = "restaurants"
         request.region = region
 
         let search = MKLocalSearch(request: request)
