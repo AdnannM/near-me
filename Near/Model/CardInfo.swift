@@ -23,9 +23,7 @@ struct CardInfo: Identifiable {
     var isSaved: Bool = false
 }
 
-
-
-
+// MARK: - Placehoder data
 func getCardData(for tab: Tab) -> [CardInfo] {
     switch tab {
     case .food:
