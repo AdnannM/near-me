@@ -88,6 +88,19 @@ struct YouView: View {
 
             if let mapItems = response?.mapItems {
                 for item in mapItems {
+                    if let cat = item.pointOfInterestCategory {
+                        let fullName = cat.rawValue
+                        if fullName.hasPrefix("MKPOICategory"),
+                           let range = fullName.range(of: "MKPOICategory") {
+                            let cleanName = fullName[range.upperBound...].capitalized
+                            print("Category: \(cleanName)")
+                        } else {
+                            print("Category: \(fullName.capitalized)")
+                        }
+                    } else {
+                        print("Category: N/A")
+                    }
+                    
                     print("Name: \(item.name ?? "Unknown")")
                     print("Phone: \(item.phoneNumber ?? "N/A")")
                     print("URL: \(item.url?.absoluteString ?? "No URL")")
@@ -97,6 +110,7 @@ struct YouView: View {
                     print("ZIP: \(item.placemark.postalCode ?? "N/A")")
                     print("Country: \(item.placemark.country ?? "N/A")")
                     print("Coordinates: \(item.placemark.coordinate.latitude), \(item.placemark.coordinate.longitude)")
+                    
                     print("---------")
                 }
 
