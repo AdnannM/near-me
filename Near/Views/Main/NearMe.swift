@@ -20,35 +20,20 @@ import SwiftUI
 // This structure ensures that the bookmark state persists and the button stays blue
 // until explicitly toggled off by the user.
 
-struct SavedBanner: View {
-    var body: some View {
-        HStack(spacing: 8) {
-            Image(systemName: "checkmark.circle.fill")
-                .foregroundColor(.green)
-            Text("Saved")
-                .fontWeight(.semibold)
-                .foregroundColor(.primary)
-        }
-        .padding()
-        .background(.ultraThinMaterial)
-        .clipShape(Capsule())
-        .padding(.top, 10)
-        .padding(.horizontal)
-    }
-}
-
-
 struct NearMe: View {
-    @State private var searchText: String = ""
-    @State private var activeTab: Tab = .food
+
     @Environment(\.colorScheme) var colorScheme
     @Namespace private var animation
     @FocusState private var isSearching: Bool
+
     @State private var showSavedBanner: Bool = false
-    @State private var cardDataState: [CardInfo] = []  // State to hold and manage card data
+    @State private var cardDataState: [CardInfo] = []
+    @State private var searchText: String = ""
+    @State private var activeTab: Tab = .food
+    @State private var listVM = CardListViewModel()
 
     var body: some View {
-        ZStack(alignment: .top) { // Set alignment to .top to position items at the top
+        ZStack(alignment: .top) {
             ScrollView(.vertical) {
                 LazyVStack(spacing: 15) {
                     mainView
@@ -71,12 +56,12 @@ struct NearMe: View {
                 // Update card data when tab changes
                 cardDataState = getCardData(for: newValue)
             }
-            .zIndex(0) // Set base layer z-index
-            
+            .zIndex(0)  // Set base layer z-index
+
             if showSavedBanner {
                 SavedBanner()
                     .transition(.move(edge: .top).combined(with: .opacity))
-                    .zIndex(10) 
+                    .zIndex(10)
             }
         }
     }
@@ -89,7 +74,7 @@ struct NearMe: View {
             let progress = isSearching ? 1 : max(min(-minY / 70, 1), 0)
 
             VStack(spacing: 10) {
-                
+
                 Text("Near Me")
                     .font(.largeTitle.bold())
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -129,7 +114,7 @@ struct NearMe: View {
                         .padding(.bottom, -progress * 65)
                         .padding(.horizontal, -progress * 15)
                 }
-                
+
                 ScrollView(.horizontal) {
                     HStack(spacing: 12) {
                         ForEach(Tab.allCases, id: \.rawValue) { tab in
@@ -181,34 +166,21 @@ struct NearMe: View {
     @ViewBuilder
     var mainView: some View {
         VStack(spacing: 12) {
-            MainContentView(
-                cardData: cardDataState,
-                onSave: { cardId in
-                    // Find and update the card with the given ID
-                    if let index = cardDataState.firstIndex(where: { $0.id == cardId }) {
-                        // Toggle the saved state
-                        cardDataState[index].isSaved.toggle()
-                        
-                        // Only show banner if we're saving (not unsaving)
-                        if cardDataState[index].isSaved {
-                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                showSavedBanner = true
-                            }
-                            
-                            // Auto hide after 2 seconds
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                                withAnimation {
-                                    showSavedBanner = false
-                                }
+            ForEach(listVM.cards) { vm in
+                CardView(vm: vm)
+                    .onChange(of: vm.isSaved) {
+                        if vm.isSaved {
+                            withAnimation { showSavedBanner = true }
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 2)
+                            {
+                                withAnimation { showSavedBanner = false }
                             }
                         }
                     }
-                }
-            )
+            }
         }
     }
 }
-
 
 #Preview {
     NearMe()

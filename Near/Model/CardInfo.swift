@@ -7,9 +7,9 @@
 
 import Foundation
 
-// Example data for the cards
 struct CardInfo: Identifiable {
     let id = UUID()
+    let category: String      
     let title: String
     let description: String?
     let phone: String
@@ -23,12 +23,12 @@ struct CardInfo: Identifiable {
     var isSaved: Bool = false
 }
 
-// MARK: - Placehoder data
 func getCardData(for tab: Tab) -> [CardInfo] {
     switch tab {
     case .food:
         return [
             CardInfo(
+                category: "Restaurant",
                 title: "Pizza Bar La Strada",
                 description: "Cozy pizzeria with local charm and great pizza.",
                 phone: "+387 65 059 535",
@@ -41,6 +41,7 @@ func getCardData(for tab: Tab) -> [CardInfo] {
                 coordinates: (44.7745577, 17.1912788)
             ),
             CardInfo(
+                category: "Steakhouse",
                 title: "Grill House Banja",
                 description: "Traditional Balkan grilled meats and local drinks.",
                 phone: "+387 65 123 456",
@@ -53,6 +54,7 @@ func getCardData(for tab: Tab) -> [CardInfo] {
                 coordinates: (44.7720000, 17.1900000)
             ),
             CardInfo(
+                category: "Bistro",
                 title: "Urban Bistro",
                 description: "Modern cuisine in a stylish downtown setting.",
                 phone: "+387 65 654 321",
@@ -65,10 +67,10 @@ func getCardData(for tab: Tab) -> [CardInfo] {
                 coordinates: (44.7750000, 17.1950000)
             )
         ]
-        
     case .store:
         return [
             CardInfo(
+                category: "Grocery",
                 title: "Local Mart",
                 description: "Groceries and daily essentials.",
                 phone: "+387 51 101 101",
@@ -81,6 +83,7 @@ func getCardData(for tab: Tab) -> [CardInfo] {
                 coordinates: (44.7738, 17.1935)
             ),
             CardInfo(
+                category: "Electronics",
                 title: "Tech Stop",
                 description: "Gadgets and accessories.",
                 phone: "+387 51 202 202",
@@ -93,6 +96,7 @@ func getCardData(for tab: Tab) -> [CardInfo] {
                 coordinates: (44.7715, 17.1898)
             ),
             CardInfo(
+                category: "Bookstore",
                 title: "Book Nook",
                 description: "Find your next great read.",
                 phone: "+387 51 303 303",
@@ -105,10 +109,10 @@ func getCardData(for tab: Tab) -> [CardInfo] {
                 coordinates: (44.7761, 17.1962)
             )
         ]
-        
     case .gas:
         return [
             CardInfo(
+                category: "Gas Station",
                 title: "Shell Station",
                 description: "Reliable fuel and quick snacks.",
                 phone: "+387 51 111 111",
@@ -121,6 +125,7 @@ func getCardData(for tab: Tab) -> [CardInfo] {
                 coordinates: (44.7690, 17.1850)
             ),
             CardInfo(
+                category: "Gas Station",
                 title: "GreenFuel",
                 description: "Eco-friendly fuel solutions.",
                 phone: "+387 51 222 222",
@@ -133,6 +138,7 @@ func getCardData(for tab: Tab) -> [CardInfo] {
                 coordinates: (44.7708, 17.1874)
             ),
             CardInfo(
+                category: "Gas Station",
                 title: "QuickPump",
                 description: "Fast service, open 24/7.",
                 phone: "+387 51 333 333",
@@ -145,10 +151,10 @@ func getCardData(for tab: Tab) -> [CardInfo] {
                 coordinates: (44.7755, 17.1823)
             )
         ]
-        
     case .charging:
         return [
             CardInfo(
+                category: "EV Charging",
                 title: "SuperCharge Point",
                 description: "Charge your EV in minutes.",
                 phone: "+387 51 444 444",
@@ -161,6 +167,7 @@ func getCardData(for tab: Tab) -> [CardInfo] {
                 coordinates: (44.7741, 17.1880)
             ),
             CardInfo(
+                category: "EV Charging",
                 title: "VoltZone",
                 description: "Multiple chargers available.",
                 phone: "+387 51 555 555",
@@ -173,6 +180,7 @@ func getCardData(for tab: Tab) -> [CardInfo] {
                 coordinates: (44.7730, 17.1942)
             ),
             CardInfo(
+                category: "EV Charging",
                 title: "EcoCharge",
                 description: "Solar-powered EV charging station.",
                 phone: "+387 51 666 666",
@@ -185,10 +193,10 @@ func getCardData(for tab: Tab) -> [CardInfo] {
                 coordinates: (44.7700, 17.1901)
             )
         ]
-        
     case .museum:
         return [
             CardInfo(
+                category: "Museum",
                 title: "Museum of Contemporary Art",
                 description: "Explore modern art exhibits and local artists.",
                 phone: "+387 51 215 626",
@@ -201,6 +209,7 @@ func getCardData(for tab: Tab) -> [CardInfo] {
                 coordinates: (44.7724, 17.1911)
             ),
             CardInfo(
+                category: "Museum",
                 title: "Ethnographic Museum",
                 description: "Showcasing the cultural heritage of the region.",
                 phone: "+387 51 234 567",
@@ -213,6 +222,7 @@ func getCardData(for tab: Tab) -> [CardInfo] {
                 coordinates: (44.7733, 17.1895)
             ),
             CardInfo(
+                category: "Museum",
                 title: "City History Museum",
                 description: "Learn about the history of Banja Luka.",
                 phone: "+387 51 765 432",

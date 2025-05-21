@@ -8,81 +8,20 @@
 import SwiftUI
 
 struct CardView: View {
-    let title: String
-    let description: String?
-    let height: CGFloat
-    let cornerRadius: CGFloat
-    let backgroundColor: Color
-    let address: String
-    let isSaved: Bool
-    let onSave: () -> Void
-
-    init(
-        title: String,
-        description: String? = nil,
-        address: String,
-        height: CGFloat = 220,
-        cornerRadius: CGFloat = 20,
-        isSaved: Bool = false,  // Default to false
-        onSave: @escaping () -> Void,
-        backgroundColor: Color = .gray.opacity(0.1)
-    ) {
-        self.title = title
-        self.description = description
-        self.height = height
-        self.cornerRadius = cornerRadius
-        self.backgroundColor = backgroundColor
-        self.address = address
-        self.isSaved = isSaved
-        self.onSave = onSave
-    }
+    
+    @ObservedObject var vm: CardViewModel
 
     var body: some View {
         ZStack(alignment: .leading) {
-            RoundedRectangle(cornerRadius: cornerRadius)
-                .fill(backgroundColor)
+            RoundedRectangle(cornerRadius: 20)
+                .fill(.gray.opacity(0.1))
 
             // Content
             VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    
-//                    if let category = category {
-                        Text("Restaurant")
-                            .font(.caption)
-                            .fontWeight(.semibold)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 5)
-                            .background(
-                                Capsule()
-                                    .fill(Color.orange.opacity(0.12))
-                            )
-                            .overlay(
-                                Capsule()
-                                    .stroke(Color.orange.opacity(0.25), lineWidth: 0.5)
-                            )
-                            .foregroundColor(.orange)
-//                    }
-                    
-                    Text(title)
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .foregroundColor(.primary)  // Adapts to light/dark mode
 
-                    Spacer()
+                categoryTitle
 
-                    // Right icon button
-                    Button {
-                        // Just call onSave, the parent will handle toggling the state
-                        onSave()
-                    } label: {
-                        Image(systemName: "bookmark.circle")
-                            .font(.title)
-                    }
-                    .foregroundColor(isSaved ? .blue.opacity(0.25) : .white)
-
-                }
-
-                if let description = description, !description.isEmpty {
+                if let description = vm.description, !description.isEmpty {
                     Text(description)
                         .font(.body)
                         .foregroundColor(.secondary)
@@ -96,7 +35,7 @@ struct CardView: View {
                         Image(systemName: "map")
                             .font(.caption)
 
-                        Text(address)
+                        Text(vm.address)
                             .font(.caption)
                             .fontWeight(.semibold)
                     }
@@ -111,17 +50,10 @@ struct CardView: View {
                             .stroke(Color.blue.opacity(0.25), lineWidth: 0.5)
                     )
                     .foregroundColor(.blue)
-
-                    // Web site
-                    Button {
-                        if let url = URL(
-                            string: "https://www.facebook.com/podlipombl/")
-                        {
-                            UIApplication.shared.open(url)
-                        }
-                    } label: {
-                        Image(systemName: "link")
-                            .font(.caption)
+                    
+                    // Open webiste
+                    Button { vm.openWebsite() } label: {
+                        Image(systemName: "link").font(.caption2)
                     }
                     .padding(.horizontal, 10)
                     .padding(.vertical, 8)
@@ -138,16 +70,9 @@ struct CardView: View {
                     Spacer()
 
                     // Phone button
-                    Button {
-                        if let url = URL(string: "tel://+38763962067") {
-                            UIApplication.shared.open(url)
-                        }
-                    } label: {
-                        HStack(spacing: 4) {
-                            Image(systemName: "phone.fill")
-                                .font(.caption)
-                                .fontWeight(.semibold)
-                        }
+                    Button { vm.callPhone() } label: {
+                        Image(systemName: "phone.fill").font(.caption2)
+                            .fontWeight(.semibold)
                     }
                     .padding(.horizontal, 10)
                     .padding(.vertical, 8)
@@ -161,18 +86,43 @@ struct CardView: View {
             }
             .padding()
         }
-        .frame(height: height)
+        .frame(height: 220)
+    }
+
+    // Category title
+    private var categoryTitle: some View {
+        HStack {
+            Text(vm.category)
+                .font(.caption)
+                .fontWeight(.semibold)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 5)
+                .background(
+                    Capsule()
+                        .fill(Color.orange.opacity(0.12))
+                )
+                .overlay(
+                    Capsule()
+                        .stroke(Color.orange.opacity(0.25), lineWidth: 0.5)
+                )
+                .foregroundColor(.orange)
+
+            Text(vm.title)
+                .font(.title2)
+                .fontWeight(.bold)
+                .foregroundColor(.primary)  // Adapts to light/dark mode
+
+            Spacer()
+
+            // Right icon button
+            Button {
+                vm.toggleSaved()
+            } label: {
+                Image(systemName: "bookmark.circle")
+                    .font(.title)
+            }
+            .foregroundColor(vm.isSaved ? .blue.opacity(0.25) : .white)
+        }
     }
 }
 
-#Preview {
-    CardView(
-        title: "La Bella Cucina",
-        description:
-            "A cozy Italian restaurant nestled in the heart of the city. Known for its handmade pasta, wood-fired pizzas, and a carefully curated wine list.",
-        address: "Via Roma 27, 00184 Rome, Italy",
-        onSave: {
-            print("Saved La Bella Cucina")
-        }
-    )
-}
