@@ -36,16 +36,6 @@ final class CardViewModel: Identifiable,ObservableObject {
         // TODO: persist via SwiftData later
     }
 
-    func openMap() {
-        let geo = CLGeocoder()
-        geo.geocodeAddressString(address) { marks, _ in
-            guard let coord = marks?.first?.location?.coordinate else { return }
-            let item = MKMapItem(placemark: MKPlacemark(coordinate: coord))
-            item.name = self.title
-            item.openInMaps()
-        }
-    }
-
     func openWebsite() {
         guard let url = websiteURL else { return }
         UIApplication.shared.open(url)

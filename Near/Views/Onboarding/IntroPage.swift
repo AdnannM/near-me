@@ -5,7 +5,6 @@
 //  Created by Adnann Muratovic on 14.05.25.
 //
 
-
 import SwiftUI
 
 struct IntroPage: View {

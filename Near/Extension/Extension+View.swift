@@ -23,3 +23,14 @@ extension View {
             .scaleEffect(show ? 1 : 0.9)
     }
 }
+
+
+extension UIView {
+    var scrollView: UIScrollView? {
+        if let superview, superview is UIScrollView {
+            return superview as? UIScrollView
+        }
+
+        return superview?.scrollView
+    }
+}

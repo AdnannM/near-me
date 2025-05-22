@@ -17,13 +17,13 @@ enum AppTab: String, CaseIterable, FloatingTabProtocol {
     var symbolImage: String {
         switch self {
         case .you:
-            "memories"
+            "map"
         case .nearMe:
-            "memories"
+            "safari"
         case .saved:
-            "memories"
+            "bookmark"
         case .settings:
-            "memories"
+            "gear"
         }
     }
 }
