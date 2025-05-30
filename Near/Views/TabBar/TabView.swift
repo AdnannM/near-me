@@ -42,7 +42,7 @@ struct TabHomeView: View {
             case .saved:
                 Text("Saved")
             case .settings:
-                Text("Settings")
+                SettingsView()
             }
         }
     }

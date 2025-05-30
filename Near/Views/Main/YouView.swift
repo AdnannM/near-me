@@ -44,28 +44,165 @@ struct YouView: View {
             searchNearbyRestaurants()
         }
         .sheet(item: $selectedItem) { item in
-            VStack(spacing: 16) {
-                Text(item.mapItem.name ?? "Unknown")
-                    .font(.title2)
-                    .bold()
-
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("📍 Address: \(item.mapItem.placemark.title ?? "N/A")")
-                    Text("📞 Phone: \(item.mapItem.phoneNumber ?? "N/A")")
-                    Text("🌍 Website: \(item.mapItem.url?.absoluteString ?? "N/A")")
-                    Text("🗺️ City: \(item.mapItem.placemark.locality ?? "N/A")")
-                    Text("🏙️ State: \(item.mapItem.placemark.administrativeArea ?? "N/A")")
-                    Text("📮 ZIP: \(item.mapItem.placemark.postalCode ?? "N/A")")
-                    Text("🇨🇴 Country: \(item.mapItem.placemark.country ?? "N/A")")
-                    Text("🧭 Coords: \(item.mapItem.placemark.coordinate.latitude), \(item.mapItem.placemark.coordinate.longitude)")
+            VStack(spacing: 15) {
+                // Header
+                HStack {
+                    VStack(alignment: .leading) {
+                        Text(item.mapItem.name ?? "Unknown")
+                            .font(.title2.bold())
+                        // City, State, Country line below title
+                        Text("\(item.mapItem.placemark.locality ?? ""), \(item.mapItem.placemark.administrativeArea ?? ""), \(item.mapItem.placemark.country ?? "")")
+                            .font(.callout)
+                            .foregroundStyle(.gray)
+                    }
+                    Spacer()
+                    Button(action: {
+                        selectedItem = nil
+                    }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.title2)
+                            .foregroundColor(.gray)
+                    }
                 }
-                .font(.subheadline)
-                .frame(maxWidth: .infinity, alignment: .leading)
-
-                Spacer()
+                .padding(.bottom, 5)
+                
+                // Action Buttons
+                HStack(spacing: 10) {
+                    Button(action: {
+                        // TODO: Add directions action
+                    }) {
+                        Label("Directions", systemImage: "arrow.triangle.turn.up.right.diamond.fill")
+                            .font(.callout.bold())
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                            .background {
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(.blue)
+                            }
+                    }
+                    
+                    Button(action: {
+                        // TODO: Add share action
+                    }) {
+                        Label("Share", systemImage: "square.and.arrow.up.fill")
+                            .font(.callout.bold())
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                            .background {
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(.green)
+                            }
+                    }
+                }
+                
+                // Additional Details
+                ScrollView { // Wrap details in ScrollView if they might exceed sheet height
+                    VStack(alignment: .leading, spacing: 10) { // Spacing between detail items
+                        // Full Address
+                        if let address = item.mapItem.placemark.title {
+                            Label {
+                                Text(address)
+                                    .font(.callout)
+                            } icon: {
+                                Image(systemName: "location.fill")
+                                    .foregroundStyle(.blue)
+                            }
+                            .padding(.vertical, 8)
+                            .padding(.horizontal, 12)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background {
+                                RoundedRectangle(cornerRadius: 10)
+                                    .fill(.background)
+                                    .shadow(color: .gray.opacity(0.1), radius: 3, x: 0, y: 1)
+                            }
+                        }
+                        
+                        // Phone Number
+                        if let phone = item.mapItem.phoneNumber {
+                            Label {
+                                Text(phone)
+                                    .font(.callout)
+                            } icon: {
+                                Image(systemName: "phone.fill")
+                                    .foregroundStyle(.green)
+                            }
+                            .padding(.vertical, 8)
+                            .padding(.horizontal, 12)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background {
+                                RoundedRectangle(cornerRadius: 10)
+                                    .fill(.background)
+                                    .shadow(color: .gray.opacity(0.1), radius: 3, x: 0, y: 1)
+                            }
+                        }
+                        
+                        // Website URL
+                        if let url = item.mapItem.url?.absoluteString {
+                            Label {
+                                Text(url)
+                                    .font(.callout)
+                            } icon: {
+                                Image(systemName: "globe")
+                                    .foregroundStyle(.orange)
+                            }
+                            .padding(.vertical, 8)
+                            .padding(.horizontal, 12)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background {
+                                RoundedRectangle(cornerRadius: 10)
+                                    .fill(.background)
+                                    .shadow(color: .gray.opacity(0.1), radius: 3, x: 0, y: 1)
+                            }
+                        }
+                        
+                        // ZIP Code
+                        if let zip = item.mapItem.placemark.postalCode {
+                            Label {
+                                Text(zip)
+                                    .font(.callout)
+                            } icon: {
+                                Image(systemName: "envelope.fill")
+                                    .foregroundStyle(.purple)
+                            }
+                            .padding(.vertical, 8)
+                            .padding(.horizontal, 12)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background {
+                                RoundedRectangle(cornerRadius: 10)
+                                    .fill(.background)
+                                    .shadow(color: .gray.opacity(0.1), radius: 3, x: 0, y: 1)
+                            }
+                        }
+                        
+                        // Coordinates
+                        Label {
+                            Text(String(format: "%.6f, %.6f", item.mapItem.placemark.coordinate.latitude, item.mapItem.placemark.coordinate.longitude))
+                                .font(.callout)
+                        } icon: {
+                            Image(systemName: "map.fill") // Using map.fill for coords
+                                .foregroundStyle(.red)
+                        }
+                        .padding(.vertical, 8)
+                        .padding(.horizontal, 12)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background {
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(.background)
+                                .shadow(color: .gray.opacity(0.1), radius: 3, x: 0, y: 1)
+                        }
+                    }
+                }
+                
+                Spacer() // Push content to top
+                
             }
             .padding()
+            .background(.ultraThinMaterial)
             .presentationDetents([.fraction(0.4), .medium])
+            .presentationBackground(.ultraThinMaterial)
+            .presentationCornerRadius(20)
         }
     }
 
