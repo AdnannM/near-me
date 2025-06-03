@@ -8,7 +8,7 @@
 import SwiftUI
 
 // 3. The flow of data and state:
-// - NearMe view holds the cardDataState array
+// - NearMe view owns the CardListViewModel
 // - MainContentView passes each card's data to CardView
 // - CardView displays the isSaved state (doesn't manage it)
 // - When bookmark button is clicked:
@@ -27,7 +27,6 @@ struct NearMe: View {
     @FocusState private var isSearching: Bool
 
     @State private var showSavedBanner: Bool = false
-    @State private var cardDataState: [CardInfo] = []
     @State private var searchText: String = ""
     @State private var activeTab: Tab = .food
     @State private var listVM = CardListViewModel()
@@ -47,14 +46,10 @@ struct NearMe: View {
             }
             .background(.gray.opacity(0.15))
             .onAppear {
-                // Initialize card data state when view appears
-                if cardDataState.isEmpty {
-                    cardDataState = getCardData(for: activeTab)
-                }
+                listVM.selectedTab = activeTab
             }
-            .onChange(of: activeTab) { oldValue, newValue in
-                // Update card data when tab changes
-                cardDataState = getCardData(for: newValue)
+            .onChange(of: activeTab) { _, newValue in
+                listVM.selectedTab = newValue
             }
             .zIndex(0)  // Set base layer z-index
 
